@@ -1,96 +1,123 @@
-# Projects# PySpark ETL demo: CSV → Parquet na S3/MinIO
+README.md (wersja ludzka, PL/EN)
+PySpark ETL demo — przetwarzanie danych z MinIO (S3) do Parquet
 
-## Opis projektu
+Cześć!
+Ten projekt pokazuje w praktyce, jak zbudować prosty pipeline ETL z użyciem PySpark i MinIO, czyli lokalnej „chmury” S3.
+Cały proces polega na pobraniu pliku CSV z MinIO, przetworzeniu danych (np. usunięciu braków, agregacji),
+a potem zapisaniu efektu w formacie Parquet z powrotem do MinIO.
 
-Ten projekt demonstruje prosty pipeline ETL oparty o PySpark i MinIO (symulację AWS S3).  
-Celem jest pobranie pliku CSV z „chmury” (MinIO), przetworzenie (czyszczenie i agregacja) w PySpark,  
-a następnie zapisanie efektu do formatu Parquet w MinIO.
+To idealny start, żeby zobaczyć, jak w praktyce działa Big Data, Spark i przechowywanie plików w stylu AWS S3 — ale lokalnie, bez kosztów!
+Jak uruchomić projekt krok po kroku?
 
----
+    Włącz MinIO przez Docker Compose
+    Jeśli korzystasz z pliku docker-compose.yml, odpal:
 
-## Krok po kroku: Jak uruchomić lokalnie?
-
-### 1. Uruchom MinIO (Docker Compose)
-```bash
 docker-compose up -d
-2. Stwórz bucket demo w MinIO (http://localhost:9001)
 
-    Stwórz foldery: input i output.
+Stwórz bucket demo w MinIO
+Otwórz przeglądarkę: http://localhost:9001
+Zaloguj się (minioadmin / minioadmin), utwórz bucket demo i w nim foldery input oraz output.
 
-3. Wrzuć przykładowy plik CSV do demo/input/ (np. sample.csv).
-4. Odpal pipeline PySpark:
+Wgraj plik CSV
+Wrzucasz swój plik (np. sample.csv) do katalogu demo/input/.
 
-spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.6,com.amazonaws:aws-java-sdk-bundle:1.12.367 src/etl_pipeline.py
+Uruchom pipeline PySpark
+Przejdź do katalogu z projektem i uruchom:
 
-5. Wynik pojawi się jako plik Parquet w demo/output/.
-Co zobaczysz w MinIO po uruchomieniu?
+    spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.6,com.amazonaws:aws-java-sdk-bundle:1.12.367 src/etl_pipeline.py
 
-    demo/input/sample.csv — surowe dane wejściowe (CSV)
+    (Uwaga: Jeśli skrypt jest gdzie indziej, popraw ścieżkę.)
 
-    demo/output/demo.parquet — dane wyjściowe w formacie Parquet (po przetworzeniu przez Spark)
+    Efekt zobaczysz w MinIO
+    Wejdź w demo/output/ – tam pojawi się plik demo.parquet z przetworzonymi danymi.
 
-Wymagania
+Co dokładnie się dzieje?
+
+    Wejście: Surowe dane CSV wpadają do bucketa demo/input/.
+
+    Transformacja: PySpark czyści dane (usuwa puste rekordy), robi prostą agregację (np. zliczanie wierszy według wybranej kolumny).
+
+    Wyjście: Gotowy plik Parquet pojawia się w demo/output/ – szybki, lekki i gotowy do dalszej analizy.
+
+Co jest potrzebne do uruchomienia?
 
     Docker + Docker Compose
 
-    PySpark (>=3.3)
+    PySpark (np. 3.3+)
 
-    Python 3.8+
+    Python 3.8 lub wyżej
 
-    MinIO (uruchamiany przez Docker Compose)
+    MinIO (odpalony przez Docker Compose)
 
-    (Opcjonalnie) AWS CLI lub mc (MinIO Client)
+    (Opcjonalnie) narzędzia MinIO Client (mc) lub AWS CLI do pracy z bucketami
 
-PySpark ETL demo: CSV → Parquet on S3/MinIO
-Project description
+Schemat architektury (opis słowny):
 
-This project demonstrates a simple ETL pipeline using PySpark and MinIO (S3-compatible storage).
-The goal is to fetch a CSV file from the "cloud" (MinIO), process it in PySpark (cleaning and aggregation),
-and save the result as a Parquet file back to MinIO.
-Step by step: How to run locally?
-1. Start MinIO (Docker Compose)
+    MinIO (S3):
+    Przechowuje dane wejściowe i wyjściowe.
+
+    PySpark:
+    Pobiera plik CSV z MinIO, przetwarza dane, zapisuje efekt jako Parquet z powrotem do MinIO.
+
+Całość działa lokalnie – ale układ jest dokładnie taki, jak przy prawdziwym AWS S3 + Spark!
+PySpark ETL demo — from MinIO (S3) to Parquet
+
+Hi!
+This project shows how to build a simple ETL pipeline using PySpark and MinIO (a local S3-compatible cloud).
+The whole process is about downloading a CSV file from MinIO, processing the data (cleaning, aggregation),
+and saving the result as a Parquet file back to MinIO.
+
+Perfect to see how real-life Big Data pipelines, Spark, and S3-like storage work – all locally, for free!
+How to run the project, step by step?
+
+    Start MinIO using Docker Compose
+    If you have docker-compose.yml, just run:
 
 docker-compose up -d
 
-2. Create a demo bucket in MinIO (http://localhost:9001)
+Create a demo bucket in MinIO
+Open your browser: http://localhost:9001
+Log in (minioadmin / minioadmin), create bucket demo and folders input and output.
 
-    Create input and output folders.
+Upload the CSV file
+Put your file (e.g., sample.csv) into demo/input/.
 
-3. Upload a sample CSV file to demo/input/ (e.g., sample.csv).
-4. Run the PySpark pipeline:
+Run the PySpark pipeline
+In your project directory, run:
 
-spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.6,com.amazonaws:aws-java-sdk-bundle:1.12.367 src/etl_pipeline.py
+    spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.6,com.amazonaws:aws-java-sdk-bundle:1.12.367 src/etl_pipeline.py
 
-5. The result will appear as a Parquet file in demo/output/.
-What will you see in MinIO after running the pipeline?
+    (Adjust the path if your script is elsewhere.)
 
-    demo/input/sample.csv — raw input data (CSV)
+    Check the result in MinIO
+    Go to demo/output/ – you'll find demo.parquet with processed data.
 
-    demo/output/demo.parquet — processed data (Parquet, generated by Spark)
+What happens under the hood?
+
+    Input: Raw CSV data lands in demo/input/.
+
+    Processing: PySpark cleans the data (drops empty rows), performs simple aggregation (e.g., count by selected column).
+
+    Output: The final Parquet file appears in demo/output/ – ready for further analysis.
 
 Requirements
 
     Docker + Docker Compose
 
-    PySpark (>=3.3)
+    PySpark (e.g., 3.3+)
 
     Python 3.8+
 
     MinIO (via Docker Compose)
 
-    (Optional) AWS CLI or mc (MinIO Client)
+    (Optional) MinIO Client (mc) or AWS CLI for bucket operations
 
+Architecture overview
 
----
+    MinIO (S3):
+    Stores input and output data.
 
-## 🗺️ **Diagram architektury — jak zrobić najprościej**
+    PySpark:
+    Reads CSV from MinIO, processes it, writes Parquet back to MinIO.
 
-**Możesz zrobić taki układ:**
-
-+-----------+ +-------------+ +----------------+
-| MinIO | --[CSV]--> | PySpark | --[Parquet]-> MinIO |
-| (S3 API) | | ETL | | (S3 API) |
-+-----------+ +-------------+ +----------------+
-^ ^
-| |
-[input/] [output/]
+Everything works locally, but the structure is just like a real AWS S3 + Spark solution!
