@@ -1,4 +1,4 @@
-README.md (wersja ludzka, PL/EN)
+README.md ( PL/EN)
 PySpark ETL demo — przetwarzanie danych z MinIO (S3) do Parquet
 
 Cześć!
